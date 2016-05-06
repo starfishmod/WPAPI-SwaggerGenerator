@@ -1,7 +1,7 @@
 # WPAPI-SwaggerGenerator
 Generate a swagger file for your Wordpress, based on the plugins installed.
 
-Download the zip file and install using the plugins installed
+Download the zip file and install using the plugins install upload.
 
 Go to http://yourwordpresssite.example.com/index.php/apigenerate/swagger to get 
 a JSON swagger file.

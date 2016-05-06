@@ -148,13 +148,11 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 					
 					//Clean up parameters
 					foreach ($endpointPart['args'] as $pname=>$pdetails){
-						if($pname=='force'){
-							$d=0;
-						}
+						
 						$parameter=array(
 							'name'=>$pname
 							,'type'=>'string'
-							,'in'=>'formData'
+							,'in'=>$methodName=='POST'?'formData':'query'
 						);
 						if(!empty($pdetails['description']))$parameter['description']=$pdetails['description'];
 						if(!empty($pdetails['format']))$parameter['format']=$pdetails['format'];

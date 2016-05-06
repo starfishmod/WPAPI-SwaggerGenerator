@@ -1,6 +1,6 @@
 <?php
 /**
- * Metadata base class.
+ * Swagger base class.
  */
 class WP_REST_Swagger_Controller extends WP_REST_Controller {
 	
@@ -9,7 +9,7 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 	 * Construct the API handler object.
 	 */
 	public function __construct() {
-		$this->namespace = 'wp/v2';
+		$this->namespace = 'apigenerate';
 	}
 
 	/**
@@ -103,7 +103,7 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 		foreach($restServer->get_routes() as $endpointName => $endpoint){
 			
 			// don't include self - that's a bit meta
-			if($endpointName=='/wp/v2/swagger') continue; 
+			if($endpointName==$this->namespace.'/swagger') continue; 
 			
 			$routeopt = $restServer->get_route_options( $endpointName );
 			if(!empty($routeopt['schema'][1])){
@@ -130,6 +130,7 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 							'name'=>$matches[1]
 							,'type'=>'string'
 							,'in'=>'path'
+							,'required'=>true
 						);
 					return '{'.$matches[1].'}';
 				},

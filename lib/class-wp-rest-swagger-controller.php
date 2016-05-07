@@ -64,7 +64,27 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 				,'consumes'=>array('multipart/form-data')
 				,'produces'=>array('application/json')
 				,'paths'=>array()
-				,'definitions'=>array()
+				,'definitions'=>array(
+					'error'=>array(
+						'descritption'=>'Error handling'
+						,'properties'=>array(
+							'code'=>array(
+								'type'=>'string'
+							)
+							,'message'=>array(
+								'type'=>'string'
+							)
+							,'data'=>array(
+								'type'=>'object'
+								,'properties'=>array(
+									'status'=>array(
+										'type'=>'integer'
+									)
+								)
+							)
+						)
+					)
+				)
 				,'securityDefinitions'=>array(
 					"cookieAuth"=>array(
 						"type"=> "apiKey",
@@ -197,6 +217,9 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 						,'responses'=>array(
 							200=>array(
 								'schema'=>$outputSchemaForMethod
+							)
+							,'default'=>array(
+								'schema'=>'#/definitions/error'
 							)
 						)
 					);

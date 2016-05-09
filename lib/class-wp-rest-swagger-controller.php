@@ -242,17 +242,20 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 	private function schemaIntoDefinition($schema){
 		if(!empty($schema['$schema']))unset($schema['$schema']);
 		if(!empty($schema['title']))unset($schema['title']);
-		foreach($schema['properties'] as &$prop){
-			
+		foreach($schema['properties'] as $name=>&$prop){
+						
 			if(!empty($prop['properties'])){
 				$prop = $this->schemaIntoDefinition($prop);
 			}
-			
+			if($prop['type']=='array'){
+				$prop['items']=array('type'=>'string');
+			}else			
 			if(!empty($prop['context'])){
 				$prop['enum']=$prop['context'];
-				unset($prop['context']);
+				
 			}
 			if(!empty($prop['readonly']))unset($prop['readonly']);
+			if(!empty($prop['context']))unset($prop['context']);
 			
 			
 		}

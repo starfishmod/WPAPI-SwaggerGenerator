@@ -45,11 +45,11 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Request|WP_Error Meta object data on success, WP_Error otherwise
 	 */
 	public function get_swagger( $request ) {
-		$basePath = '/wp-json/';
+		$basePath = '/';
 		global $wp_rewrite;
 		
 		if($wp_rewrite->root!='/'){
-			$basePath = '/'.$wp_rewrite->root.'wp-json';//'/'.$matches[1].'/';
+			$basePath = '/'.$wp_rewrite->root;//'/'.$matches[1].'/';
 		}
 		
 		$swagger = array(
@@ -59,7 +59,7 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 					,'title'=>wp_title('',0)
 				)
 				,'host'=>preg_replace('/(^https?:\/\/|\/$)/','',site_url('/'))
-				,'basePath'=>$basePath
+				,'basePath'=>$basePath.'wp-json'
 				,'schemes'=>array(preg_match('/^https:/i',site_url()) ? 'https' : 'http')
 				,'consumes'=>array('multipart/form-data')
 				,'produces'=>array('application/json')

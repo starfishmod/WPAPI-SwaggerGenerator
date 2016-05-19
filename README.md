@@ -3,7 +3,7 @@ Generate a swagger file for your Wordpress, based on the plugins installed.
 
 Download the zip file and install using the plugins install upload.
 
-Go to http://yourwordpresssite.example.com/index.php/apigenerate/swagger to get 
+Go to http://yourwordpresssite.example.com/index.php/wp-json/apigenerate/swagger to get 
 the swagger file in JSON format. At this stage this plugin does not generate yaml files.
 
 This plugin works well with WP-APIv2 and any plugin that uses the WP_REST_Server

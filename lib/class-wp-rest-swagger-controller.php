@@ -52,13 +52,19 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 			$basePath = '/'.$wp_rewrite->root;//'/'.$matches[1].'/';
 		}
 		
+		$title=wp_title('',0);
+		$host=preg_replace('/(^https?:\/\/|\/$)/','',site_url('/'));
+		if(empty($title)){
+			$title=$host;
+		}
+		
 		$swagger = array(
 				'swagger'=>'2.0'
 				,'info'=>array(
 					'version'=>'1.0'
-					,'title'=>wp_title('',0)
+					,'title'=>$title
 				)
-				,'host'=>preg_replace('/(^https?:\/\/|\/$)/','',site_url('/'))
+				,'host'=>$host
 				,'basePath'=>$basePath.'wp-json'
 				,'schemes'=>array(preg_match('/^https:/i',site_url()) ? 'https' : 'http')
 				,'consumes'=>array('multipart/form-data')
@@ -117,6 +123,13 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 			$security[] = 	array('oauth'=>array('basic'));
 		}
 		
+		if(class_exists('Application_Passwords') || function_exists('json_basic_auth_handler')){
+			$swagger['securityDefinitions']['basicAuth']=array(
+				'type'=>'basic'
+			);
+			$security[] = 	array('basicAuth'=>array(''));
+		}
+		
 		
 		$restServer = rest_get_server();
 		
@@ -165,6 +178,8 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 			foreach($endpoint as $endpointPart){
 				
 				foreach($endpointPart['methods'] as $methodName=>$method){
+					if(in_array($methodName,array('PUT','PATCH')))continue; //duplicated by post
+					
 					$parameters = $defaultidParams;
 					
 					//Clean up parameters
@@ -210,18 +225,28 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 						);
 					}
 					
+					$responses = array(
+						200=>array(
+							'schema'=>$outputSchemaForMethod
+						)
+						,'default'=>array(
+							'schema'=>array('$ref'=>'#/definitions/error')
+						)
+					);
+					
+					if(in_array($methodName,array('POST','PATCH','PUT')) && !preg_match('/}$/',$endpointName)){
+						//This are actually 201's in the default API - but joy of joys this is unreliable
+						$responses[201] = array(
+							'schema'=>$outputSchemaForMethod
+						);
+					}
+					
 					
 					$swagger['paths'][$endpointName][$methodName] = array(
 						'parameters'=>$parameters
 						,'security'=>$security
-						,'responses'=>array(
-							200=>array(
-								'schema'=>$outputSchemaForMethod
-							)
-							,'default'=>array(
-								'schema'=>'#/definitions/error'
-							)
-						)
+						,'responses'=>$responses
+						
 					);
 					
 				}

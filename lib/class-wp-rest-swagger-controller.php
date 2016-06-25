@@ -72,8 +72,7 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 				,'paths'=>array()
 				,'definitions'=>array(
 					'error'=>array(
-						'descritption'=>'Error handling'
-						,'properties'=>array(
+						'properties'=>array(
 							'code'=>array(
 								'type'=>'string'
 							)
@@ -207,6 +206,12 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 							if($pdetails['type']=='array'){
 								$parameter['type']=$pdetails['type'];
 								$parameter['items']=array('type'=>'string');
+							}elseif($pdetails['type']=='object'){
+								$parameter['type']='string';
+							
+							}elseif($pdetails['type']=='date-time'){
+								$parameter['type']='string';
+								$parameter['format']='date-time';
 							}else{
 								$parameter['type']=$pdetails['type'];
 							}
@@ -227,22 +232,25 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 					
 					$responses = array(
 						200=>array(
-							'schema'=>$outputSchemaForMethod
+							'description'=> "successful operation"
+							,'schema'=>$outputSchemaForMethod
 						)
 						,'default'=>array(
-							'schema'=>array('$ref'=>'#/definitions/error')
+							'description'=> "error"
+							,'schema'=>array('$ref'=>'#/definitions/error')
 						)
 					);
 					
 					if(in_array($methodName,array('POST','PATCH','PUT')) && !preg_match('/}$/',$endpointName)){
 						//This are actually 201's in the default API - but joy of joys this is unreliable
 						$responses[201] = array(
-							'schema'=>$outputSchemaForMethod
+							'description'=> "successful operation"
+							,'schema'=>$outputSchemaForMethod
 						);
 					}
 					
 					
-					$swagger['paths'][$endpointName][$methodName] = array(
+					$swagger['paths'][$endpointName][strtolower($methodName)] = array(
 						'parameters'=>$parameters
 						,'security'=>$security
 						,'responses'=>$responses
@@ -275,12 +283,17 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 			if($prop['type']=='array'){
 				$prop['items']=array('type'=>'string');
 			}else			
+			if($prop['type']=='date-time'){
+				$prop['type']='string';
+				$prop['format']='date-time';
+			}else			
 			if(!empty($prop['context'])){
 				$prop['enum']=$prop['context'];
 				
 			}
-			if(!empty($prop['readonly']))unset($prop['readonly']);
-			if(!empty($prop['context']))unset($prop['context']);
+			if(isset($prop['required']))unset($prop['required']);
+			if(isset($prop['readonly']))unset($prop['readonly']);
+			if(isset($prop['context']))unset($prop['context']);
 			
 			
 		}

@@ -286,11 +286,11 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 			if($prop['type']=='date-time'){
 				$prop['type']='string';
 				$prop['format']='date-time';
-			}else			
-			if(!empty($prop['context'])){
-				$prop['enum']=$prop['context'];
-				
 			}
+//			else if(!empty($prop['context']) && $prop['format']!='date-time'){
+//				//$prop['enum']=$prop['context'];
+//				
+//			}
 			if(isset($prop['required']))unset($prop['required']);
 			if(isset($prop['readonly']))unset($prop['readonly']);
 			if(isset($prop['context']))unset($prop['context']);

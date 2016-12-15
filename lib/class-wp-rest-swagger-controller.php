@@ -65,8 +65,8 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 					,'title'=>$title
 				)
 				,'host'=>$host
-				,'basePath'=>$basePath.'wp-json'
-				,'schemes'=>array(preg_match('/^https:/i',site_url()) ? 'https' : 'http')
+				,'basePath'=>"{$basePath}wp-json"
+				,'schemes'=>array((is_ssl() | force_ssl_admin()) ? 'https' : 'http')
 				,'consumes'=>array('multipart/form-data')
 				,'produces'=>array('application/json')
 				,'paths'=>array()
@@ -135,7 +135,7 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 		foreach($restServer->get_routes() as $endpointName => $endpoint){
 			
 			// don't include self - that's a bit meta
-			if($endpointName=='/'.$this->namespace.'/swagger') continue; 
+			if($endpointName=='/'.$this->namespace.'/swagger') { continue; } 
 			
 			$routeopt = $restServer->get_route_options( $endpointName );
 			if(!empty($routeopt['schema'][1])){
@@ -168,6 +168,8 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 				},
 				$endpointName
 			);
+			$endpointName = str_replace(site_url(), '',
+							            rest_url($endpointName));
 			
 			if(empty($swagger['paths'][$endpointName])){
 				$swagger['paths'][$endpointName] = array();

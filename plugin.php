@@ -4,8 +4,8 @@
  * Description: Swagger for the WP REST API
  * Author: Andrew Mee
  * Author URI: 
- * Version: 0.0.1
- * Plugin URI:
+ * Version: 0.0.2
+ * Plugin URI: https://github.com/starfishmod/WPAPI-SwaggerGenerator
  * License: GPL2+
  */
 

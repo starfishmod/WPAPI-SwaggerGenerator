@@ -45,18 +45,26 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Request|WP_Error Meta object data on success, WP_Error otherwise
 	 */
 	public function get_swagger( $request ) {
-		$basePath = '/';
-		global $wp_rewrite;
 		
-		if($wp_rewrite->root!='/'){
-			$basePath = '/'.$wp_rewrite->root;//'/'.$matches[1].'/';
-		}
+		
+		
+		global $wp_rewrite;
+//		
+//		if($wp_rewrite->root!='/'){
+//			$basePath = '/'.$wp_rewrite->root;//'/'.$matches[1].'/';
+//		}
 		
 		$title=wp_title('',0);
 		$host=preg_replace('/(^https?:\/\/|\/$)/','',site_url('/'));
 		if(empty($title)){
 			$title=$host;
 		}
+		
+		$apiPath =  get_rest_url();
+		
+		$basePath = preg_replace('#https?://#', '', $apiPath);
+		$basePath = str_replace($host, '', $basePath);
+		$basePath = preg_replace('#/$#', '', $basePath);
 		
 		$swagger = array(
 				'swagger'=>'2.0'
@@ -65,7 +73,7 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 					,'title'=>$title
 				)
 				,'host'=>$host
-				,'basePath'=>"{$basePath}wp-json"
+				,'basePath'=>$basePath
 				,'schemes'=>array((is_ssl() | force_ssl_admin()) ? 'https' : 'http')
 				,'consumes'=>array('multipart/form-data')
 				,'produces'=>array('application/json')
@@ -111,15 +119,32 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 				'type'=>'oauth2'
 				,'x-oauth1'=> true
 				,'flow'=> 'accessCode'
-				,'authorizationUrl'=> site_url().$basePath.'oauth1/authorize'
-				,'tokenUrl'=> site_url().$basePath.'oauth1/request'
-				,'x-accessUrl'=> site_url().$basePath.'oauth1/access'
+				,'authorizationUrl'=> $apiPath.'oauth1/authorize'
+				,'tokenUrl'=> $apiPath.'oauth1/request'
+				,'x-accessUrl'=> $apiPath.'oauth1/access'
 				,'scopes'=>array(
-				  'basic'=> 'OAuth authentication uses the OAuth 1.0a specification (published as
-					RFC5849)'
+				  'basic'=> 'OAuth authentication uses the OAuth 1.0a specification (published as RFC5849)'
 					)
 			);
 			$security[] = 	array('oauth'=>array('basic'));
+		}
+		
+		
+		if(class_exists('WO_Server')){
+			$rootURL = site_url();
+		
+			if ( $wp_rewrite->using_index_permalinks() ) $rootURL.='/'.$wp_rewrite->index;
+			
+			$swagger['securityDefinitions']['oauth']=array(
+				'type'=>'oauth2'
+				,'flow'=> 'accessCode'
+				,'authorizationUrl'=> $rootURL.'/oauth/authorize'
+				,'tokenUrl'=> $rootURL.'/oauth/token'
+				,'scopes'=>array(
+				  'openid'=> 'openid'
+					)
+			);
+			$security[] = 	array('oauth'=>array('openid'));
 		}
 		
 		if(class_exists('Application_Passwords') || function_exists('json_basic_auth_handler')){
@@ -168,8 +193,8 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 				},
 				$endpointName
 			);
-			$endpointName = str_replace(site_url(), '',
-							            rest_url($endpointName));
+			$endpointName = str_replace(site_url(), '',rest_url($endpointName));
+			$endpointName = str_replace($basePath, '',$endpointName);
 			
 			if(empty($swagger['paths'][$endpointName])){
 				$swagger['paths'][$endpointName] = array();
@@ -282,6 +307,24 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 			if(!empty($prop['properties'])){
 				$prop = $this->schemaIntoDefinition($prop);
 			}
+			
+			//-- Changes by Richi
+			if(!empty($prop['enum'])){
+				if($prop['enum'][0] == ""){
+					if(count($prop['enum']) > 1){
+						array_shift($prop['enum']);	
+					}else{
+						$prop['enum'][0] = "NONE";
+					}
+				};
+			}
+
+			if(!empty($prop['default']) && $prop['default'] == null){
+				unset($prop['default']);
+			}
+//--
+
+			
 			if($prop['type']=='array'){
 				$prop['items']=array('type'=>'string');
 			}else			

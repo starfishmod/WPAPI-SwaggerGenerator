@@ -37,6 +37,17 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 	public function get_swagger_permissions_check( $request ) {
 		return true;
 	}
+	
+	function getSiteRoot($path=''){
+		global $wp_rewrite;
+		$rootURL = site_url();
+
+		if ( $wp_rewrite->using_index_permalinks() ) $rootURL.='/'.$wp_rewrite->index;
+
+		$rootURL.='/'.$path;
+
+		return $rootURL;
+	}
 
 	/**
 	 * Retrieve custom swagger object.
@@ -119,9 +130,9 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 				'type'=>'oauth2'
 				,'x-oauth1'=> true
 				,'flow'=> 'accessCode'
-				,'authorizationUrl'=> $apiPath.'oauth1/authorize'
-				,'tokenUrl'=> $apiPath.'oauth1/request'
-				,'x-accessUrl'=> $apiPath.'oauth1/access'
+				,'authorizationUrl'=> $this->getSiteRoot('/oauth1/authorize')
+				,'tokenUrl'=>  $this->getSiteRoot('/oauth1/request')
+				,'x-accessUrl'=>  $this->getSiteRoot('/oauth1/access')
 				,'scopes'=>array(
 				  'basic'=> 'OAuth authentication uses the OAuth 1.0a specification (published as RFC5849)'
 					)

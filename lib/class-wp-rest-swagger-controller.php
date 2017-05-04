@@ -130,9 +130,9 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 				'type'=>'oauth2'
 				,'x-oauth1'=> true
 				,'flow'=> 'accessCode'
-				,'authorizationUrl'=> $this->getSiteRoot('/oauth1/authorize')
-				,'tokenUrl'=>  $this->getSiteRoot('/oauth1/request')
-				,'x-accessUrl'=>  $this->getSiteRoot('/oauth1/access')
+				,'authorizationUrl'=> $this->getSiteRoot('oauth1/authorize')
+				,'tokenUrl'=>  $this->getSiteRoot('oauth1/request')
+				,'x-accessUrl'=>  $this->getSiteRoot('oauth1/access')
 				,'scopes'=>array(
 				  'basic'=> 'OAuth authentication uses the OAuth 1.0a specification (published as RFC5849)'
 					)

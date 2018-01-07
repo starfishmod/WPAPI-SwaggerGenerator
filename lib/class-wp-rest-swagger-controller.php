@@ -48,6 +48,11 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 
 		return $rootURL;
 	}
+	
+	private function compose_operation_name($carry, $part) {
+		$carry .= ucfirst(strtolower($part));
+		return $carry;
+	}
 
 	/**
 	 * Retrieve custom swagger object.
@@ -287,12 +292,12 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 						);
 					}
 					
-					
+					$operationId = ucfirst(strtolower($methodName)) . array_reduce(explode('/', preg_replace("/{(\w+)}/", 'by/${1}', $endpointName)), array($this, "compose_operation_name"));
 					$swagger['paths'][$endpointName][strtolower($methodName)] = array(
 						'parameters'=>$parameters
 						,'security'=>$security
 						,'responses'=>$responses
-						
+						,'operationId'=>$operationId
 					);
 					
 				}

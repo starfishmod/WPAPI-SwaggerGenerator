@@ -317,6 +317,8 @@ class WP_REST_Swagger_Controller extends WP_REST_Controller {
 						
 			if(!empty($prop['properties'])){
 				$prop = $this->schemaIntoDefinition($prop);
+			} else if(isset($prop['properties'])){
+				$prop['properties'] = new stdClass();
 			}
 			
 			//-- Changes by Richi
